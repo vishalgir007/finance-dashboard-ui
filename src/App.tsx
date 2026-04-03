@@ -102,6 +102,78 @@ function downloadCsv(rows: Transaction[]) {
   URL.revokeObjectURL(url)
 }
 
+function OverviewIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 12.5 12 5l8 7.5" />
+      <path d="M6.5 11.2V19h11v-7.8" />
+      <path d="M9.4 19v-4.1h5.2V19" />
+    </svg>
+  )
+}
+
+function InsightsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M6 18.5h12" />
+      <path d="M7.5 18.5V12" />
+      <path d="M12 18.5V8.5" />
+      <path d="M16.5 18.5v-5.5" />
+      <path d="M5 5.5h14" />
+    </svg>
+  )
+}
+
+function TransactionsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M7 7h10" />
+      <path d="M7 12h10" />
+      <path d="M7 17h7" />
+      <path d="M5 5.5h14v13H5z" />
+    </svg>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  )
+}
+
+function ExportIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 3v11" />
+      <path d="m8.5 7.5 3.5-3.5 3.5 3.5" />
+      <path d="M5 14.5v4h14v-4" />
+    </svg>
+  )
+}
+
+function ThemeIcon({ theme }: { theme: 'light' | 'dark' }) {
+  return theme === 'dark' ? (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M13.5 5.5A7.5 7.5 0 1 0 18.5 18 9 9 0 0 1 13.5 5.5Z" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 3v2.5" />
+      <path d="M12 18.5V21" />
+      <path d="m5.1 5.1 1.8 1.8" />
+      <path d="m17.1 17.1 1.8 1.8" />
+      <path d="M3 12h2.5" />
+      <path d="M18.5 12H21" />
+      <path d="m5.1 18.9 1.8-1.8" />
+      <path d="m17.1 6.9 1.8-1.8" />
+      <circle cx="12" cy="12" r="4.5" />
+    </svg>
+  )
+}
+
 function App() {
   const location = useLocation()
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
@@ -160,6 +232,7 @@ function App() {
   const [categoryFilter, setCategoryFilter] = useState(savedFilters?.categoryFilter ?? 'all')
   const [sortBy, setSortBy] = useState(savedFilters?.sortBy ?? 'date-desc')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const [form, setForm] = useState({
@@ -197,6 +270,18 @@ function App() {
     const set = new Set(transactions.map((transaction) => transaction.category))
     return ['all', ...Array.from(set).sort()]
   }, [transactions])
+
+  const modalCategoryOptions = useMemo(() => {
+    const seed = form.type === 'income'
+      ? ['Salary', 'Side Income', 'Investments', 'Bonus', 'Freelance', 'Other']
+      : ['Food', 'Housing', 'Utilities', 'Transport', 'Health', 'Lifestyle', 'Education', 'Other']
+
+    const existingByType = transactions
+      .filter((transaction) => transaction.type === form.type)
+      .map((transaction) => transaction.category)
+
+    return Array.from(new Set([...seed, ...existingByType])).sort((a, b) => a.localeCompare(b))
+  }, [transactions, form.type])
 
   const totals = useMemo(() => {
     const income = transactions
@@ -353,6 +438,7 @@ function App() {
       amount: '',
     })
     setEditingId(null)
+    setIsTransactionModalOpen(false)
   }
 
   const handleSaveTransaction = () => {
@@ -402,6 +488,7 @@ function App() {
       type: transaction.type,
       amount: String(transaction.amount),
     })
+    setIsTransactionModalOpen(true)
   }
 
   useEffect(() => {
@@ -410,6 +497,11 @@ function App() {
     }
 
     const handleEscape = (event: KeyboardEvent) => {
+      if (isTransactionModalOpen && event.key === 'Escape') {
+        setIsTransactionModalOpen(false)
+        return
+      }
+
       if (event.key === 'Escape') {
         setSidebarOpen(false)
       }
@@ -417,7 +509,7 @@ function App() {
 
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [sidebarOpen])
+  }, [sidebarOpen, isTransactionModalOpen])
 
   useEffect(() => {
     const handleSidebarShortcut = (event: KeyboardEvent) => {
@@ -470,9 +562,18 @@ function App() {
           </button>
         </div>
         <nav className="sidebar-nav">
-          <NavLink to="/overview" onClick={() => setSidebarOpen(false)}>Overview</NavLink>
-          <NavLink to="/insights" onClick={() => setSidebarOpen(false)}>Insights</NavLink>
-          <NavLink to="/transactions" onClick={() => setSidebarOpen(false)}>Transactions</NavLink>
+          <NavLink to="/overview" onClick={() => setSidebarOpen(false)}>
+            <OverviewIcon />
+            <span>Overview</span>
+          </NavLink>
+          <NavLink to="/insights" onClick={() => setSidebarOpen(false)}>
+            <InsightsIcon />
+            <span>Insights</span>
+          </NavLink>
+          <NavLink to="/transactions" onClick={() => setSidebarOpen(false)}>
+            <TransactionsIcon />
+            <span>Transactions</span>
+          </NavLink>
         </nav>
       </aside>
 
@@ -495,6 +596,7 @@ function App() {
               type="button"
               onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
             >
+              <ThemeIcon theme={theme} />
               {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
             </button>
           </div>
@@ -732,14 +834,14 @@ function App() {
                   ) : (
                     <div className="chart-wrap insights-chart-wrap">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={balanceTrend} barCategoryGap="28%" margin={{ top: 14, right: 8, left: 0, bottom: 8 }}>
+                        <BarChart data={balanceTrend} barCategoryGap="34%" barGap={6} margin={{ top: 14, right: 8, left: 0, bottom: 8 }}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="month" />
                           <YAxis tickFormatter={(value) => `$${value}`} />
                           <Tooltip formatter={(value: unknown) => currency.format(Number(value ?? 0))} />
                           <Legend />
-                          <Bar dataKey="income" fill="#22c55e" radius={[8, 8, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
-                          <Bar dataKey="expense" fill="#ef4444" radius={[8, 8, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                          <Bar dataKey="income" fill="#0ea5e9" barSize={14} radius={[7, 7, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                          <Bar dataKey="expense" fill="#f97316" barSize={14} radius={[7, 7, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -763,6 +865,7 @@ function App() {
                       onClick={() => downloadCsv(filteredTransactions)}
                       disabled={filteredTransactions.length === 0}
                     >
+                      <ExportIcon />
                       Export CSV
                     </button>
                   </div>
@@ -796,51 +899,25 @@ function App() {
                 </div>
 
                 {role === 'admin' ? (
-                  <div className="admin-form">
-                    <h4>{editingId ? 'Edit Transaction' : 'Add Transaction'}</h4>
-                    <div className="admin-grid">
-                      <input
-                        type="date"
-                        value={form.date}
-                        onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Description"
-                        value={form.description}
-                        onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Category"
-                        value={form.category}
-                        onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
-                      />
-                      <select
-                        value={form.type}
-                        onChange={(event) => setForm((current) => ({ ...current, type: event.target.value as TransactionType }))}
-                      >
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                      </select>
-                      <input
-                        type="number"
-                        min="1"
-                        placeholder="Amount"
-                        value={form.amount}
-                        onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))}
-                      />
-                      <div className="admin-actions">
-                        <button className="primary" type="button" onClick={handleSaveTransaction}>
-                          {editingId ? 'Update' : 'Add'}
-                        </button>
-                        {editingId ? (
-                          <button className="ghost" type="button" onClick={resetForm}>
-                            Cancel
-                          </button>
-                        ) : null}
-                      </div>
-                    </div>
+                  <div className="transaction-actions">
+                    <button
+                      className="primary add-transaction-btn"
+                      type="button"
+                      onClick={() => {
+                        setEditingId(null)
+                        setForm({
+                          date: new Date().toISOString().slice(0, 10),
+                          description: '',
+                          category: 'Other',
+                          type: 'expense',
+                          amount: '',
+                        })
+                        setIsTransactionModalOpen(true)
+                      }}
+                    >
+                      <PlusIcon />
+                      <span>ADD</span>
+                    </button>
                   </div>
                 ) : (
                   <p className="viewer-note">Viewer role is read-only. Switch to Admin to add or edit transactions.</p>
@@ -884,12 +961,81 @@ function App() {
                     </table>
                   )}
                 </div>
+
               </section>
             }
           />
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Routes>
       </div>
+
+      {role === 'admin' && isTransactionModalOpen && location.pathname === '/transactions' ? (
+        <div className="transaction-modal-backdrop" role="presentation" onClick={() => setIsTransactionModalOpen(false)}>
+          <div className="transaction-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
+            <div className="transaction-modal-head">
+              <h4>{editingId ? 'Edit Transaction' : 'Add Transaction'}</h4>
+              <button className="modal-close" type="button" onClick={() => setIsTransactionModalOpen(false)} aria-label="Close">
+                X
+              </button>
+            </div>
+
+            <div className="transaction-type-toggle">
+              <button
+                className={`type-chip income ${form.type === 'income' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setForm((current) => ({ ...current, type: 'income' }))}
+              >
+                Income
+              </button>
+              <button
+                className={`type-chip expense ${form.type === 'expense' ? 'active' : ''}`}
+                type="button"
+                onClick={() => setForm((current) => ({ ...current, type: 'expense' }))}
+              >
+                Expense
+              </button>
+            </div>
+
+            <div className="transaction-modal-grid">
+              <input
+                type="text"
+                placeholder="Description"
+                value={form.description}
+                onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+              />
+              <input
+                type="number"
+                min="1"
+                placeholder="Amount"
+                value={form.amount}
+                onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))}
+              />
+              <input
+                type="date"
+                value={form.date}
+                onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))}
+              />
+              <select
+                value={form.category}
+                onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
+              >
+                {modalCategoryOptions.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="transaction-modal-actions">
+              <button className="primary" type="button" onClick={handleSaveTransaction}>
+                {editingId ? 'Update' : 'Add'}
+              </button>
+              <button className="ghost" type="button" onClick={resetForm}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
