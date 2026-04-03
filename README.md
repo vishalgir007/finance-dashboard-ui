@@ -135,9 +135,6 @@ This ensures the dashboard restores user context after refresh.
 - `npm run build`: type-check and production build
 - `npm run preview`: preview built app
 
-## Notes
 
-- This is a frontend-focused implementation using local persistence instead of a backend API.
-- A Vite chunk-size warning may appear in build output due to charting dependencies; this does not block build success.
 
 
