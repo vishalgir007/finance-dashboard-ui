@@ -19,6 +19,7 @@ import {
 type TransactionType = 'income' | 'expense'
 type UserRole = 'viewer' | 'admin'
 type ThemeMode = 'light' | 'dark'
+type PaletteName = 'prism' | 'sunset' | 'tropic' | 'candy'
 
 interface Transaction {
   id: string
@@ -40,6 +41,7 @@ const STORAGE_KEY = 'finance-dashboard-transactions'
 const ROLE_STORAGE_KEY = 'finance-dashboard-role'
 const THEME_STORAGE_KEY = 'finance-dashboard-theme'
 const FILTERS_STORAGE_KEY = 'finance-dashboard-filters'
+const PALETTE_STORAGE_KEY = 'finance-dashboard-palette'
 
 const initialTransactions: Transaction[] = [
   { id: 'T001', date: '2026-01-03', description: 'Salary', category: 'Salary', type: 'income', amount: 5500 },
@@ -68,7 +70,19 @@ const monthLabel = new Intl.DateTimeFormat('en-US', {
   month: 'short',
 })
 
-const colors = ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#64748b']
+const PALETTE_COLORS: Record<PaletteName, string[]> = {
+  prism: ['#2563eb', '#06b6d4', '#22c55e', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#14b8a6'],
+  sunset: ['#f97316', '#fb7185', '#eab308', '#f43f5e', '#8b5cf6', '#3b82f6', '#10b981', '#d946ef'],
+  tropic: ['#0ea5a4', '#14b8a6', '#22c55e', '#84cc16', '#f59e0b', '#f43f5e', '#6366f1', '#06b6d4'],
+  candy: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'],
+}
+
+const PALETTE_OPTIONS: Array<{ value: PaletteName; label: string }> = [
+  { value: 'prism', label: 'Prism Pop' },
+  { value: 'sunset', label: 'Sunset Burst' },
+  { value: 'tropic', label: 'Tropic Mix' },
+  { value: 'candy', label: 'Candy Bright' },
+]
 
 function toMonthKey(date: string) {
   const parsed = new Date(date)
@@ -201,6 +215,14 @@ function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
+  const [palette, setPalette] = useState<PaletteName>(() => {
+    const saved = localStorage.getItem(PALETTE_STORAGE_KEY)
+    if (saved === 'prism' || saved === 'sunset' || saved === 'tropic' || saved === 'candy') {
+      return saved
+    }
+    return 'sunset'
+  })
+
   const [savedFilters] = useState<StoredFilters | null>(() => {
     const saved = localStorage.getItem(FILTERS_STORAGE_KEY)
     if (!saved) {
@@ -255,6 +277,11 @@ function App() {
     localStorage.setItem(THEME_STORAGE_KEY, theme)
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    localStorage.setItem(PALETTE_STORAGE_KEY, palette)
+    document.documentElement.setAttribute('data-palette', palette)
+  }, [palette])
 
   useEffect(() => {
     const filters: StoredFilters = {
@@ -420,6 +447,8 @@ function App() {
     }
   }, [location.pathname])
 
+  const activeChartColors = useMemo(() => PALETTE_COLORS[palette], [palette])
+
   const cashFlowTrend = useMemo(() => {
     return balanceTrend.map((monthData) => ({
       month: monthData.month,
@@ -584,6 +613,14 @@ function App() {
             <p>{pageHeading.description}</p>
           </div>
           <div className="top-controls">
+            <div className="palette-switcher">
+              <label htmlFor="palette">Palette</label>
+              <select id="palette" value={palette} onChange={(event) => setPalette(event.target.value as PaletteName)}>
+                {PALETTE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
             <div className="role-switcher">
               <label htmlFor="role">Role</label>
               <select id="role" value={role} onChange={(event) => setRole(event.target.value as UserRole)}>
@@ -659,7 +696,7 @@ function App() {
                           <PieChart>
                             <Pie data={expenseByCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95} label>
                               {expenseByCategory.map((entry, index) => (
-                                <Cell key={entry.name} fill={colors[index % colors.length]} />
+                                <Cell key={entry.name} fill={activeChartColors[index % activeChartColors.length]} />
                               ))}
                             </Pie>
                             <Tooltip formatter={(value: unknown) => currency.format(Number(value ?? 0))} />
@@ -693,7 +730,7 @@ function App() {
                         />
                         <Bar dataKey="rawValue" radius={[0, 12, 12, 0]} animationDuration={1100} animationEasing="ease-out">
                           {topSpendingCategories.map((entry, index) => (
-                            <Cell key={entry.label} fill={colors[index % colors.length]} />
+                            <Cell key={entry.label} fill={activeChartColors[index % activeChartColors.length]} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -702,7 +739,7 @@ function App() {
                   <div className="statistics-legend">
                     {topSpendingCategories.map((item, index) => (
                       <article key={item.label} className="statistics-legend-item" style={{ animationDelay: `${index * 90}ms` }}>
-                        <span className="stat-dot" style={{ backgroundColor: colors[index % colors.length] }} />
+                        <span className="stat-dot" style={{ backgroundColor: activeChartColors[index % activeChartColors.length] }} />
                         <div>
                           <p className="stat-label">{item.label}</p>
                           <h4 className="stat-value">{item.value}</h4>
@@ -789,7 +826,7 @@ function App() {
                             type="monotone"
                             dataKey="income"
                             name="Income"
-                            stroke="#0ea5e9"
+                            stroke={activeChartColors[1]}
                             strokeWidth={2.8}
                             dot={false}
                             activeDot={{ r: 5 }}
@@ -800,7 +837,7 @@ function App() {
                             type="monotone"
                             dataKey="expense"
                             name="Expense"
-                            stroke="#f97316"
+                            stroke={activeChartColors[0]}
                             strokeWidth={2.8}
                             dot={false}
                             activeDot={{ r: 5 }}
@@ -811,7 +848,7 @@ function App() {
                             type="monotone"
                             dataKey="netCashflow"
                             name="Net Cashflow"
-                            stroke="#22c55e"
+                            stroke={activeChartColors[2]}
                             strokeWidth={3.2}
                             dot={false}
                             activeDot={{ r: 6 }}
@@ -840,8 +877,8 @@ function App() {
                           <YAxis tickFormatter={(value) => `$${value}`} />
                           <Tooltip formatter={(value: unknown) => currency.format(Number(value ?? 0))} />
                           <Legend />
-                          <Bar dataKey="income" fill="#0ea5e9" barSize={14} radius={[7, 7, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
-                          <Bar dataKey="expense" fill="#f97316" barSize={14} radius={[7, 7, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                          <Bar dataKey="income" fill={activeChartColors[1]} barSize={14} radius={[7, 7, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                          <Bar dataKey="expense" fill={activeChartColors[0]} barSize={14} radius={[7, 7, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>

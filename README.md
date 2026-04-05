@@ -19,7 +19,7 @@ This project provides a complete frontend dashboard experience with:
 - Vite
 - React Router
 - Recharts
-- CSS (custom theme system with light and dark modes)
+- CSS (custom theme system with light/dark modes and selectable color palettes)
 
 ## Setup Instructions
 
@@ -61,7 +61,7 @@ The implementation follows a practical, product-style frontend approach:
 1. Define core financial data model and derive all dashboard metrics from transactions.
 2. Use route-based navigation so each major workflow lives on its own page.
 3. Keep interaction state local and predictable with React hooks.
-4. Persist user-critical state (transactions, filters, role, theme) in localStorage.
+4. Persist user-critical state (transactions, filters, role, theme, palette) in localStorage.
 5. Build chart-driven analytics that degrade gracefully when data is missing.
 6. Refine UX with role-aware actions, modal workflows, keyboard interactions, and responsive layouts.
 
@@ -115,6 +115,8 @@ This keeps the app easy to maintain while still feeling feature-rich and product
 
 - Professional colorful theme with gradients, accents, and icon styling
 - Dark mode support with persistent user preference
+- Palette selector with multiple colorful options: Prism Pop, Sunset Burst, Tropic Mix, and Candy Bright
+- Sunset Burst configured as the default palette for light mode
 - Consistent visual tokens (surface, border, text, accent colors)
 - Smooth transitions and chart/element animations
 
@@ -125,6 +127,7 @@ Persisted in localStorage:
 - Transactions
 - Selected role
 - Selected theme
+- Selected palette
 - Active filters and sorting
 
 This ensures the dashboard restores user context after refresh.
@@ -134,7 +137,3 @@ This ensures the dashboard restores user context after refresh.
 - `npm run dev`: start dev server
 - `npm run build`: type-check and production build
 - `npm run preview`: preview built app
-
-
-
-

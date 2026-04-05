@@ -8,26 +8,28 @@
   --font-heading: 'Sora', 'Segoe UI', sans-serif;
   --font-body: 'Manrope', 'Segoe UI', sans-serif;
 
-  --bg-page: radial-gradient(circle at 12% 0%, #dbeafe 0%, #ecfeff 20%, #eef2ff 44%, #f8fafc 78%);
-  --bg-surface: rgba(255, 255, 255, 0.88);
-  --bg-surface-solid: #ffffff;
-  --bg-elevated: linear-gradient(180deg, #ffffff 0%, #f8fbff 55%, #f0f9ff 100%);
+  --bg-page: radial-gradient(circle at 10% 0%, #ffedd5 0%, #ffe4e6 26%, #fef3c7 52%, #fff7ed 82%);
+  --bg-surface: rgba(255, 250, 245, 0.9);
+  --bg-surface-solid: #fff7ed;
+  --bg-elevated: linear-gradient(180deg, #fff7ed 0%, #ffedd5 55%, #ffe4e6 100%);
   --text-primary: #0f172a;
   --text-muted: #475569;
   --text-soft: #64748b;
-  --border-subtle: #dbe7f3;
-  --border-strong: #bfd6ee;
-  --accent: #0f766e;
-  --accent-2: #2563eb;
-  --accent-3: #0f766e;
-  --accent-4: #db2777;
-  --accent-5: #f59e0b;
+  --border-subtle: #f5d0c5;
+  --border-strong: #fdba74;
+  --accent: #f97316;
+  --accent-2: #fb7185;
+  --accent-3: #eab308;
+  --accent-4: #8b5cf6;
+  --accent-5: #06b6d4;
+  --accent-6: #ef4444;
+  --accent-7: #d946ef;
   --shadow-soft: 0 14px 34px rgba(15, 23, 42, 0.1);
   --shadow-card: 0 10px 24px rgba(15, 23, 42, 0.08);
 
   font-family: var(--font-body);
   color: var(--text-primary);
-  background: #eef3fb;
+  background: #fff1e8;
   line-height: 1.4;
   font-weight: 400;
 }
@@ -53,6 +55,8 @@ body {
   --accent-3: #34d399;
   --accent-4: #f472b6;
   --accent-5: #fbbf24;
+  --accent-6: #818cf8;
+  --accent-7: #06b6d4;
   --shadow-soft: 0 16px 34px rgba(2, 6, 23, 0.34);
   --shadow-card: 0 10px 24px rgba(2, 6, 23, 0.28);
 
@@ -62,6 +66,46 @@ body {
 
 :root[data-theme='dark'] .app-shell {
   color: #e2e8f0;
+}
+
+:root[data-palette='prism'] {
+  --accent: #14b8a6;
+  --accent-2: #2563eb;
+  --accent-3: #22c55e;
+  --accent-4: #ec4899;
+  --accent-5: #f59e0b;
+  --accent-6: #8b5cf6;
+  --accent-7: #06b6d4;
+}
+
+:root[data-palette='sunset'] {
+  --accent: #f97316;
+  --accent-2: #fb7185;
+  --accent-3: #eab308;
+  --accent-4: #8b5cf6;
+  --accent-5: #06b6d4;
+  --accent-6: #ef4444;
+  --accent-7: #d946ef;
+}
+
+:root[data-palette='tropic'] {
+  --accent: #0ea5a4;
+  --accent-2: #14b8a6;
+  --accent-3: #22c55e;
+  --accent-4: #f43f5e;
+  --accent-5: #84cc16;
+  --accent-6: #6366f1;
+  --accent-7: #06b6d4;
+}
+
+:root[data-palette='candy'] {
+  --accent: #3b82f6;
+  --accent-2: #ef4444;
+  --accent-3: #10b981;
+  --accent-4: #f59e0b;
+  --accent-5: #ec4899;
+  --accent-6: #8b5cf6;
+  --accent-7: #06b6d4;
 }
 
 #root {
@@ -102,8 +146,8 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 12%, rgba(59, 130, 246, 0.14), transparent 56%),
-    linear-gradient(180deg, rgba(148, 163, 184, 0.14), rgba(148, 163, 184, 0));
+    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--accent-2) 28%, transparent), transparent 56%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent-6) 16%, transparent), rgba(148, 163, 184, 0));
   pointer-events: none;
 }
 
@@ -114,7 +158,7 @@ body {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #2563eb, #0ea5e9);
+  background: linear-gradient(180deg, var(--accent-2), var(--accent-7));
   opacity: 0.82;
   pointer-events: none;
 }
@@ -192,7 +236,7 @@ button.secondary svg {
   border-right: 1px solid #cbd5e1;
   border-left: 0;
   background: transparent;
-  color: #1e3a8a;
+  color: var(--accent-2);
   padding: 0;
   font-size: 1rem;
   font-weight: 700;
@@ -223,7 +267,7 @@ button.secondary svg {
   height: 42px;
   border-radius: 12px;
   background: linear-gradient(180deg, #ffffff 0%, #eefcf8 100%);
-  border: 1px solid #bae6fd;
+  border: 1px solid color-mix(in srgb, var(--accent-2) 34%, #d1d5db);
   display: grid;
   place-items: center;
   transition: background-color 160ms ease, border-color 160ms ease;
@@ -231,7 +275,7 @@ button.secondary svg {
 
 .sidebar-launcher:hover .sidebar-launcher-core {
   background: linear-gradient(180deg, #dcfce7 0%, #dbeafe 100%);
-  border-color: #7dd3fc;
+  border-color: color-mix(in srgb, var(--accent-7) 56%, #9ca3af);
 }
 
 .sidebar-launcher-icon {
@@ -393,12 +437,14 @@ button.secondary svg {
   color: var(--text-muted);
 }
 
+.palette-switcher,
 .role-switcher {
   display: grid;
   gap: 0.3rem;
   min-width: 150px;
 }
 
+.palette-switcher label,
 .role-switcher label {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -611,7 +657,7 @@ select:focus {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 38%);
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent 38%);
   pointer-events: none;
 }
 
@@ -627,7 +673,7 @@ select:focus {
   border-radius: 999px;
   margin-top: 0.35rem;
   flex: 0 0 auto;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-2) 16%, transparent);
 }
 
 .statistics-legend-item .stat-value {
@@ -660,7 +706,7 @@ select:focus {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 38%);
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--accent-2) 24%, transparent), transparent 38%);
   pointer-events: none;
 }
 
